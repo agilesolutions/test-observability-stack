@@ -134,6 +134,32 @@ Filter / Transform
         │
         └────────► Tempo (traces)
 ```
+## Test Grafana on Docker Desktop
+```
+kubectl port-forward svc/kube-prometheus-stack-grafana -n monitoring 3000:80
+
+# For Windows PowerShell Retrieve the Administrator Password
+[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((kubectl get secret --namespace monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}")))
+
+username: admin
+password: prom-operator
+
+http://localhost:3000
+
+```
+Click the Menu icon (Hamburger) in the top-left corner, navigate to Connections, and choose Data sources to verify that Prometheus, Loki, and Tempo display green checkmarks.
+## Accessing the Alloy UI Tree
+watch the real-time health of your components, targets, and data flow pipelines visually.
+```
+# In a new terminal window
+kubectl port-forward svc/alloy -n monitoring 12345:12345
+
+
+http://localhost:12345
+```
+
+
+
 
 
 

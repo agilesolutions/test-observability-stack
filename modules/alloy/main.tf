@@ -118,7 +118,10 @@ resource "helm_release" "prometheus" {
   values = [
     templatefile(
       "${path.module}/prometheus-values-minimal-footprint.yaml.tpl",
-      {}
+      {
+        tempo_endpoint     = var.tempo_endpoint
+        loki_url    = var.loki_url
+      }
     )
   ]
 

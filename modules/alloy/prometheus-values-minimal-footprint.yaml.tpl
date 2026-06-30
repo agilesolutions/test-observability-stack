@@ -12,6 +12,39 @@ alertmanager:
 # Grafana optimization
 grafana:
   enabled: true
+
+  # =========================================================================
+  # THIS BLOCK AUTOMATICALLY PROVISIONS LOKI & TEMPO AT STARTUP
+  # =========================================================================
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      uid: loki
+      access: proxy
+      url: ${loki_url}
+      jsonData:
+        maxLines: 1000
+        derivedFields:
+          - datasourceUid: tempo
+            matcherRegex: "(?:trace_id|traceId|trace)=([a-zA-Z0-9]+)"
+            name: TraceID
+            url: "$${__value.raw}"
+
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      access: proxy
+      url: ${tempo_endpoint}
+      jsonData:
+        httpMethod: GET
+        traceToLogs:
+          datasourceUid: loki
+          tags: [ "job", "instance", "pod", "container" ]
+          mappedTags:
+            - key: service.name
+              value: container
+          filterByTraceID: true
+          filterBySpanID: false
   replicaCount: 1
   resources:
     limits:
