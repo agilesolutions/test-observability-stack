@@ -11,13 +11,14 @@ management:
       exposure:
         include: health,metrics,info
   tracing:
+    enabled: true
     sampling:
       probability: 1.0 # 100% sampling for development
 
   otlp:
     metrics:
       export:
-        url: http://lgtm-loki-gateway.observability.svc.cluster.local:4318/v1/metrics
+        url: http://alloy.monitoring.svc.cluster.local:4318/v1/metrics
   opentelemetry:
     tracing:
       export:
