@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: service-a
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info
+  tracing:
+    sampling:
+      probability: 1.0 # 100% sampling for development
+
+  otlp:
+    metrics:
+      export:
+        url: http://lgtm-loki-gateway.observability.svc.cluster.local:4318/v1/metrics
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://alloy.monitoring.svc.cluster.local:4318/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: http://alloy.monitoring.svc.cluster.local:4318/v1/logs
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+service:
+  name: "Service B"
+  description: "Demo service"
+  version: "0.0.1"

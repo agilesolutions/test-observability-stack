@@ -1,0 +1,120 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.0.6'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.google.cloud.tools.jib' version '3.4.5'
+}
+
+group = 'com.agilesolutions'
+version = '1.0.4'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
+}
+
+ext {
+	commit = commit()
+	branchName = branchName()
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	maven { url = 'https://repo.spring.io/milestone' }
+	maven { url = 'https://repo.spring.io/snapshot' }
+	maven { url = uri("https://repo.embabel.com/artifactory/libs-snapshot") }
+}
+
+dependencies {
+	implementation project(':common')
+	implementation libs.spring.web
+	implementation libs.spring.webmvc
+	implementation libs.spring.data.validation
+	implementation libs.spring.doc.api
+	implementation libs.spring.doc.ui
+	implementation libs.lombok
+	annotationProcessor libs.lombok
+
+	// observability
+	implementation libs.otlp.appender
+	implementation libs.spring.otlp
+
+	testImplementation libs.spring.otlp.test
+	testImplementation libs.spring.web.test
+	testImplementation libs.spring.boot.test
+	testImplementation libs.spring.restclient.test
+}
+
+String commit() {
+	return 'git rev-parse HEAD'.execute().text.trim()
+}
+
+String branchName() {
+	return hasProperty('branch.name') ? property('branch.name') : 'git branch --show-current'.execute().text.trim()
+}
+
+bootJar {
+
+	archiveFileName = './application.jar'
+
+	manifest{
+		attributes(
+				'Built-by'          : System.properties['user.name'],
+				'Build-Timestamp'   : java.time.Instant.now(),
+				'Build-Revision'    : commit,
+				'Build-Branch'      : branchName,
+				'Created-by'        : "Gradle ${gradle.gradleVersion}",
+				'Build-JDK'         : "${System.properties['java.version']} ${System.properties['java.vendor']} ${System.properties['java.vm.version']}",
+				'Build-OS'          : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+		)
+
+	}
+
+}
+
+tasks.register('dockerBuild', Exec) {
+	commandLine 'docker', 'build', '-t', "agilesolutions/service-b:${version}", '.'
+}
+
+tasks.register('release', GradleBuild) {
+	tasks = ['clean', 'build', 'dockerBuild']
+}
+
+test {
+	enabled = false
+}
+
+jib {
+
+	from {
+		// Uses an optimal, distroless Java 25 image as the base
+		image = "eclipse-temurin:25-jre"
+	}
+
+	to {
+		image = "${System.getenv("STACKIT_REGISTRY")}/service-b:${version}"
+		// Optional: Specify credentials if using a private registry
+		auth {
+			username = System.getenv("STACKIT_REGISTRY_USER")
+			password = System.getenv("STACKIT_REGISTRY_PASSWORD")
+		}
+	}
+	container {
+		// Container runtime configuration
+		ports = ['8080']
+		jvmFlags = [
+				'-Xms256m',
+				'-Xmx512m',
+				'-XX:+UseG1GC',
+				'-Djava.security.egd=file:/dev/./urandom'
+		]
+		// Set the main class explicitly
+		mainClass = 'com.agilesolutions.service_b.ServiceBApplication'
+		// Use current timestamp for image creation time
+		creationTime = 'USE_CURRENT_TIMESTAMP'
+		// Set the format to OCI
+		format = 'OCI'
+	}
+}

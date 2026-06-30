@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - service-a/helmrelease.yaml
+  - service-b/helmrelease.yaml
+  - services-namespace.yaml
+  - service-a-ingress.yaml
+  - service-b-ingress.yaml
+  - external-secrets-sa.yaml
+  - cluster-secret-store.yaml

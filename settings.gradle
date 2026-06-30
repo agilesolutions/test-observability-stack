@@ -1,0 +1,7 @@
+rootProject.name = 'test-observability-stack'
+include ':service-a'
+project(':service-a').projectDir = new File(settingsDir, 'apps/service-a')
+include ':service-b'
+project(':service-b').projectDir = new File(settingsDir, 'apps/service-b')
+include ':common'
+project(':common').projectDir = new File(settingsDir, 'apps/common')

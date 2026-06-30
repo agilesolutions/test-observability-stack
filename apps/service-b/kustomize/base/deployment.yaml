@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b
+  namespace: default
+  labels:
+    app: service-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-b
+  template:
+    metadata:
+      labels:
+        app: service-b
+    spec:
+      containers:
+        - name: service-b
+          image: agilesolutions/service-b:1.0.4
+          ports:
+            - containerPort: 8080 # Must match targetPort in the service spec
+
+          # Lean resource parameters perfect for Docker Desktop
+          resources:
+            limits:
+              memory: 128Mi
+              cpu: "200m"
+            requests:
+              memory: 64Mi
+              cpu: "50m"
+
+          # Optional: Expose Alloy OTLP environment properties to your application code
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://cluster.local"
+            - name: OTEL_SERVICE_NAME
+              value: "my-test-app"

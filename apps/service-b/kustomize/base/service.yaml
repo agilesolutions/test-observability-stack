@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-b          # The internal DNS name for other pods
+  namespace: default
+spec:
+  type: ClusterIP                # Private internal-only network type
+  selector:
+    app: service-b    # Must match the label on your Spring Boot pods
+  ports:
+    - protocol: TCP
+      port: 8080                 # The port other services will call
+      targetPort: 8080           # The port your Spring Boot app runs on
