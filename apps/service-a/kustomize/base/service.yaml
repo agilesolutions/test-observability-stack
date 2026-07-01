@@ -9,6 +9,6 @@ spec:
     app: service-a
   ports:
     - protocol: TCP
-      port: 80         # The internal cluster port for the service
+      port: 8080         # The internal cluster port for the service
       targetPort: 8080 # The actual HTTP port your application process listens on
       nodePort: 30080  # The local port you will type into your browser (range: 30000-32767)

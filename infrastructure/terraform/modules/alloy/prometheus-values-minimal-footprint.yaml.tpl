@@ -21,7 +21,7 @@ grafana:
       type: loki
       uid: loki
       access: proxy
-      url: ${loki_url}
+      url: http://loki:3100
       jsonData:
         maxLines: 1000
         derivedFields:
@@ -34,7 +34,7 @@ grafana:
       type: tempo
       uid: tempo
       access: proxy
-      url: ${tempo_endpoint}
+      url: http://tempo:3200
       jsonData:
         httpMethod: GET
         traceToLogs:
@@ -76,6 +76,13 @@ kube-state-metrics:
 prometheus:
   enabled: true
   prometheusSpec:
+    # Enable remote write receiver for Tempo metrics (default: false)
+    enableRemoteWriteReceiver: true
+    # Enable exemplar storage for metrics-traces linking (default: [])
+    enableFeatures:
+      - exemplar-storage
+      - native-histograms
+
     replicaCount: 1
 
     # Drastically reduce data retention to save memory/disk in Docker Desktop

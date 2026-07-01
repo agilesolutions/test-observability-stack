@@ -17,79 +17,8 @@ resource "helm_release" "loki" {
   chart      = "loki"
   version    = "6.6.2"
   namespace  = var.namespace
-
   values = [
-    <<-EOT
-    # Run a single, self-contained instance
-    deploymentMode: Monolithic
-
-    # ==========================================
-    # FIX SCHEMA & NULL POINTER STORAGE ERROR
-    # ==========================================
-    loki:
-      auth_enabled: false
-      useTestSchema: true
-
-      # Explicitly declare local filesystem storage to fix the template macro crash
-      storage:
-        type: filesystem
-        bucketNames:
-          chunks: chunks
-          ruler: ruler
-          admin: admin
-        filesystem:
-          chunks_directory: /var/loki/chunks
-          rules_directory: /var/loki/rules
-
-      commonConfig:
-        replication_factor: 1
-      limits_config:
-        retention_period: 24h
-
-    # Zero out SimpleScalable targets so they don't clash with Monolithic
-    backend:
-      replicas: 0
-    read:
-      replicas: 0
-    write:
-      replicas: 0
-
-    # Monolithic single-instance resource constraints
-    singleBinary:
-      replicas: 1
-      persistence:
-        enabled: true
-        size: 2Gi
-      resources:
-        limits:
-          memory: 300Mi
-          cpu: "500m"
-        requests:
-          memory: 150Mi
-          cpu: "100m"
-
-    # Minimal optimizations for Docker Desktop
-    gateway:
-      enabled: false
-
-    resultsCache:
-      enabled: false
-
-    chunksCache:
-      enabled: false
-
-    monitoring:
-      dashboards:
-        enabled: false
-      rules:
-        enabled: false
-      serviceMonitor:
-        enabled: false
-      selfMonitoring:
-        enabled: false
-        grafanaAgent:
-          enabled: false
-    EOT
+    templatefile("${path.module}/loki-single-binary-values.yaml.tpl",{})
   ]
 }
 
@@ -102,6 +31,14 @@ resource "helm_release" "tempo" {
   repository = "https://grafana.github.io/helm-charts"
   chart = "tempo"
   version = "1.23.2"
+  values = [
+    templatefile(
+      "${path.module}/tempo-values.yaml.tpl",
+      {
+        namespace = var.namespace
+      }
+    )
+  ]
 
   depends_on = [helm_release.loki]
 

@@ -17,22 +17,44 @@ spec:
     spec:
       containers:
         - name: service-a
-          image: agilesolutions/service-a:1.0.2
+          image: agilesolutions/service-a:1.0.6
           ports:
             - containerPort: 8080 # Must match targetPort in the service spec
 
-          # Lean resource parameters perfect for Docker Desktop
-          resources:
-            limits:
-              memory: 128Mi
-              cpu: "200m"
-            requests:
-              memory: 64Mi
-              cpu: "50m"
+          # 1. Startup Probe: Adjusted for resource-constrained local dev environments
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 15  # Wait 15 seconds before sending the very first check
+            timeoutSeconds: 60        # CRITICAL: Allow up to 60 seconds for Tomcat to respond
+            periodSeconds: 10        # Check every 10 seconds
+            failureThreshold: 20     # (20 * 10s) + 15s = Gives the app up to 215 seconds to boot
+            successThreshold: 1
+
+          # 2. Liveness Probe: Keeps watch over the app after it passes startup
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            timeoutSeconds: 3
+            periodSeconds: 15
+            failureThreshold: 3
+            successThreshold: 1
+
+          # 3. Readiness Probe: Governs network routing after it passes startup
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            timeoutSeconds: 3
+            periodSeconds: 15
+            failureThreshold: 3
+            successThreshold: 1
 
           # Optional: Expose Alloy OTLP environment properties to your application code
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://cluster.local"
             - name: OTEL_SERVICE_NAME
-              value: "my-test-app"
+              value: "service-a"

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.agilesolutions'
-version = '1.0.4'
+version = '1.0.6'
 
 java {
 	toolchain {
@@ -31,6 +31,7 @@ dependencies {
 	implementation project(':common')
 	implementation libs.spring.web
 	implementation libs.spring.webmvc
+	implementation libs.spring.actuator
 	implementation libs.spring.data.validation
 	implementation libs.spring.doc.api
 	implementation libs.spring.doc.ui

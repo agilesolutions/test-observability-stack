@@ -6,10 +6,15 @@ spring:
     name: service-a
 
 management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
   endpoints:
     web:
       exposure:
         include: health,metrics,info
+
   tracing:
     enabled: true
     sampling:
@@ -32,6 +37,16 @@ management:
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+springdoc:
+  show-actuator: true
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
 
 service:
   name: "Service B"

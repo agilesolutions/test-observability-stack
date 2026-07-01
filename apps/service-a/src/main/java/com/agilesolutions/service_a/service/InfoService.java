@@ -15,7 +15,7 @@ public class InfoService {
     private final RestClient restClient;
 
     public ServiceInfo getExternalInfo() {
-        String url = "http://service-b.services.svc.cluster.local/api/service-b/info";
+        String url = "http://service-b/api/service-b/info";
         log.info("Fetching external info from URL: {}", url);
         return this.restClient.get()
                 .uri(url)
