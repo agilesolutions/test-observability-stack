@@ -14,4 +14,4 @@ patches:
 images:
   - name: service-a
     newName: agilesolutions/service-a
-    newTag: 1.0.6
+    newTag: 1.0.7

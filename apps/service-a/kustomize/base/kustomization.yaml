@@ -4,6 +4,7 @@ resources:
   - namespace.yaml
   - deployment.yaml
   - service.yaml
+  - configmap.yaml
 images:
   - name: service-a
     newTag: 1.0.0

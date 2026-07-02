@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-b-configmap
+data:
+  SPRING_PROFILES_ACTIVE: default
+  OTEL_SERVICE_NAME: service-b
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy.monitoring.svc.cluster.local:4318
+  OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+  OTEL_RESOURCE_ATTRIBUTES: service.namespace=government,environment=dev
+

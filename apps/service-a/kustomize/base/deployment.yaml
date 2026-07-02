@@ -17,17 +17,19 @@ spec:
     spec:
       containers:
         - name: service-a
-          image: agilesolutions/service-a:1.0.6
+          image: agilesolutions/service-a:1.0.7
           ports:
             - containerPort: 8080 # Must match targetPort in the service spec
-
+          envFrom:
+            - configMapRef:
+                name: service-a-configmap
           # 1. Startup Probe: Adjusted for resource-constrained local dev environments
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
             initialDelaySeconds: 15  # Wait 15 seconds before sending the very first check
-            timeoutSeconds: 60        # CRITICAL: Allow up to 60 seconds for Tomcat to respond
+            timeoutSeconds: 120        # CRITICAL: Allow up to 60 seconds for Tomcat to respond
             periodSeconds: 10        # Check every 10 seconds
             failureThreshold: 20     # (20 * 10s) + 15s = Gives the app up to 215 seconds to boot
             successThreshold: 1

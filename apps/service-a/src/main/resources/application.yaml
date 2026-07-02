@@ -23,16 +23,16 @@ management:
   otlp:
     metrics:
       export:
-        url: http://alloy.monitoring.svc.cluster.local:4318/v1/metrics
+        url: ${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/metrics
   opentelemetry:
     tracing:
       export:
         otlp:
-          endpoint: http://alloy.monitoring.svc.cluster.local:4318/v1/traces
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces
     logging:
       export:
         otlp:
-          endpoint: http://alloy.monitoring.svc.cluster.local:4318/v1/logs
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/logs
 
 logging:
   pattern:
